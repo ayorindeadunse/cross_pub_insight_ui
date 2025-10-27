@@ -1049,3 +1049,4 @@
 /Users/ayorindeadunse/Projects/CrossPubInsightUI/obj/Debug/net8.0/compressed/vgfd2viis8.gz
 /Users/ayorindeadunse/Projects/CrossPubInsightUI/obj/Debug/net8.0/compressed/q0zs19ps5w.gz
 /Users/ayorindeadunse/Projects/CrossPubInsightUI/obj/Debug/net8.0/compressed/mz9284fuvx.gz
+/Users/ayorindeadunse/Projects/CrossPubInsightUI/obj/Debug/net8.0/CrossPubInsightUI.sourcelink.json
