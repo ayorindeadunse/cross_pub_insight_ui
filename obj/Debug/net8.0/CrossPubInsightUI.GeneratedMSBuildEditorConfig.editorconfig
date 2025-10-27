@@ -1,0 +1,55 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = CrossPubInsightUI
+build_property.RootNamespace = CrossPubInsightUI
+build_property.ProjectDir = /Users/ayorindeadunse/Projects/CrossPubInsightUI/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/ayorindeadunse/Projects/CrossPubInsightUI
+build_property._RazorSourceGeneratorDebug = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Pages/About.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWJvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Pages/Analysis.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQW5hbHlzaXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Pages/Status.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU3RhdHVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-g2a0w88rgp
+
+[/Users/ayorindeadunse/Projects/CrossPubInsightUI/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-yurnjv1ffr

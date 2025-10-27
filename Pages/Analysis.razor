@@ -1,0 +1,332 @@
+@page "/analysis"
+@inject CrossPubInsightUI.Services.CpiaApiService ApiService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Repository Analysis - CPIA</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">🔍 Repository Analysis</h1>
+            
+            @if (analysisState.Status == AnalysisStatus.NotStarted)
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Start New Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <EditForm Model="@analysisRequest" OnValidSubmit="@StartAnalysis">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="text-danger" />
+                            
+                            <div class="mb-3">
+                                <label for="primaryRepo" class="form-label">Primary Repository Path *</label>
+                                <InputText id="primaryRepo" class="form-control" @bind-Value="analysisRequest.PrimaryRepo" 
+                                          placeholder="e.g., /path/to/your/repository or https://github.com/user/repo" />
+                                <div class="form-text">Provide the local path or GitHub URL of the repository to analyze.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="userQuery" class="form-label">Analysis Query *</label>
+                                <InputTextArea id="userQuery" class="form-control" rows="3" @bind-Value="analysisRequest.UserQuery" 
+                                              placeholder="What would you like to know about this repository?" />
+                                <div class="form-text">Describe what insights you're looking for in this repository.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="comparisonRepos" class="form-label">Comparison Repositories (Optional)</label>
+                                <InputTextArea id="comparisonRepos" class="form-control" rows="2" @bind-Value="comparisonReposText" 
+                                              placeholder="One repository path per line (optional)" />
+                                <div class="form-text">Optional: Add other repositories to compare against.</div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Starting Analysis...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>🚀 Start Analysis</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            }
+            else if (analysisState.Status == AnalysisStatus.InProgress)
+            {
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">⏳ Analysis in Progress</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="lead">Analyzing your repository...</p>
+                            <p class="text-muted">Session ID: @analysisState.SessionId</p>
+                            
+                            @if (analysisState.StartTime.HasValue)
+                            {
+                                <p class="text-muted">Started: @analysisState.StartTime.Value.ToString("HH:mm:ss")</p>
+                                <p class="text-muted">Elapsed: @GetElapsedTime()</p>
+                            }
+                            
+                            <div class="progress mb-3">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 100%"></div>
+                            </div>
+                            
+                            <button class="btn btn-outline-secondary" @onclick="CancelAnalysis">
+                                Cancel Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (analysisState.Status == AnalysisStatus.Completed)
+            {
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">✅ Analysis Complete</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Session ID:</strong> @analysisState.SessionId<br/>
+                            <strong>Completed:</strong> @analysisState.EndTime?.ToString("yyyy-MM-dd HH:mm:ss")<br/>
+                            <strong>Duration:</strong> @GetDuration()
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6>📊 Analysis Results</h6>
+                            <pre class="bg-light p-3 rounded">@FormatResults(analysisState.Results)</pre>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-outline-primary" @onclick="() => DownloadResults()">
+                                💾 Download Results
+                            </button>
+                            <button class="btn btn-primary" @onclick="StartNewAnalysis">
+                                🔄 New Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (analysisState.Status == AnalysisStatus.Failed)
+            {
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">❌ Analysis Failed</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> @analysisState.ErrorMessage
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(analysisState.SessionId))
+                        {
+                            <p><strong>Session ID:</strong> @analysisState.SessionId</p>
+                        }
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-outline-secondary" @onclick="() => CheckStatus()">
+                                🔍 Check Status
+                            </button>
+                            <button class="btn btn-primary" @onclick="StartNewAnalysis">
+                                🔄 Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private AnalysisRequest analysisRequest = new();
+    private AnalysisState analysisState = new();
+    private string comparisonReposText = string.Empty;
+    private bool isSubmitting = false;
+    private Timer? pollTimer;
+
+    private async Task StartAnalysis()
+    {
+        isSubmitting = true;
+        
+        try
+        {
+            // Parse comparison repositories
+            if (!string.IsNullOrWhiteSpace(comparisonReposText))
+            {
+                analysisRequest.ComparisonRepos = comparisonReposText
+                    .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(r => r.Trim())
+                    .Where(r => !string.IsNullOrEmpty(r))
+                    .ToArray();
+            }
+            
+            var response = await ApiService.StartAnalysisAsync(analysisRequest);
+            
+            if (response != null && !string.IsNullOrEmpty(response.SessionId))
+            {
+                analysisState = new AnalysisState
+                {
+                    SessionId = response.SessionId,
+                    Status = AnalysisStatus.InProgress,
+                    StartTime = DateTime.Now
+                };
+                
+                // Start polling for results
+                StartPolling();
+            }
+            else
+            {
+                analysisState = new AnalysisState
+                {
+                    Status = AnalysisStatus.Failed,
+                    ErrorMessage = "Failed to start analysis. Please check your inputs and try again."
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            analysisState = new AnalysisState
+            {
+                Status = AnalysisStatus.Failed,
+                ErrorMessage = $"Error starting analysis: {ex.Message}"
+            };
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+    
+    private void StartPolling()
+    {
+        pollTimer?.Dispose();
+        pollTimer = new Timer(async _ => await CheckStatus(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(5));
+    }
+    
+    private async Task CheckStatus()
+    {
+        if (string.IsNullOrEmpty(analysisState.SessionId) || analysisState.Status != AnalysisStatus.InProgress)
+            return;
+            
+        try
+        {
+            var result = await ApiService.GetResultsAsync(analysisState.SessionId);
+            
+            if (result != null)
+            {
+                switch (result.Status.ToLower())
+                {
+                    case "completed":
+                        analysisState.Status = AnalysisStatus.Completed;
+                        analysisState.Results = result.AnalysisResult;
+                        analysisState.EndTime = DateTime.Now;
+                        StopPolling();
+                        break;
+                        
+                    case "failed":
+                    case "error":
+                        analysisState.Status = AnalysisStatus.Failed;
+                        analysisState.ErrorMessage = result.ErrorMessage ?? "Analysis failed";
+                        analysisState.EndTime = DateTime.Now;
+                        StopPolling();
+                        break;
+                }
+                
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking status: {ex.Message}");
+        }
+    }
+    
+    private void StopPolling()
+    {
+        pollTimer?.Dispose();
+        pollTimer = null;
+    }
+    
+    private void CancelAnalysis()
+    {
+        StopPolling();
+        analysisState = new AnalysisState();
+        StateHasChanged();
+    }
+    
+    private void StartNewAnalysis()
+    {
+        StopPolling();
+        analysisState = new AnalysisState();
+        analysisRequest = new AnalysisRequest();
+        comparisonReposText = string.Empty;
+        StateHasChanged();
+    }
+    
+    private string GetElapsedTime()
+    {
+        if (!analysisState.StartTime.HasValue) return "Unknown";
+        var elapsed = DateTime.Now - analysisState.StartTime.Value;
+        return $"{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+    }
+    
+    private string GetDuration()
+    {
+        if (!analysisState.StartTime.HasValue || !analysisState.EndTime.HasValue) return "Unknown";
+        var duration = analysisState.EndTime.Value - analysisState.StartTime.Value;
+        return $"{duration.Minutes:D2}:{duration.Seconds:D2}";
+    }
+    
+    private string FormatResults(object? results)
+    {
+        if (results == null) return "No results available";
+        return System.Text.Json.JsonSerializer.Serialize(results, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+    }
+    
+    private async Task DownloadResults()
+    {
+        if (analysisState.Results == null) return;
+        
+        var json = FormatResults(analysisState.Results);
+        var fileName = $"cpia-analysis-{analysisState.SessionId}-{DateTime.Now:yyyyMMdd-HHmmss}.json";
+        
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, json);
+    }
+    
+    public void Dispose()
+    {
+        StopPolling();
+    }
+}
+
+<style>
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        border: none;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    
+    pre {
+        max-height: 400px;
+        overflow-y: auto;
+        font-size: 0.875rem;
+    }
+</style>
