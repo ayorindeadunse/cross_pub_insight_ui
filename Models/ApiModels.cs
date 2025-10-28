@@ -58,11 +58,19 @@ public class HealthResponse
     [JsonPropertyName("status")]
     public string Status { get; set; } = string.Empty;
 
-    [JsonPropertyName("message")]
-    public string Message { get; set; } = string.Empty;
+    // API returns version (string) and dependencies (dict) in the health response
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = string.Empty;
+
+    [JsonPropertyName("dependencies")]
+    public Dictionary<string, object>? Dependencies { get; set; }
 
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
+
+    // Backwards-compatible message property (UI expects Message)
+    [JsonIgnore]
+    public string Message => Version;
 }
 
 /// <summary>
@@ -70,14 +78,31 @@ public class HealthResponse
 /// </summary>
 public class MonitoringHealthResponse
 {
+    // Matches api.models.MonitoringHealthResponse
     [JsonPropertyName("status")]
-    public string OverallStatus { get; set; } = string.Empty;
-
-    [JsonPropertyName("health_checks")]
-    public Dictionary<string, object> Checks { get; set; } = new();
+    public string Status { get; set; } = string.Empty;
 
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = string.Empty;
+
+    [JsonPropertyName("health_checks")]
+    public Dictionary<string, object> HealthChecks { get; set; } = new();
+
+    [JsonPropertyName("system_metrics")]
+    public Dictionary<string, object> SystemMetrics { get; set; } = new();
+
+    [JsonPropertyName("uptime_seconds")]
+    public double UptimeSeconds { get; set; }
+
+    // Backwards-compatible aliases used by the existing UI
+    [JsonIgnore]
+    public string OverallStatus => Status;
+
+    [JsonIgnore]
+    public Dictionary<string, object> Checks => HealthChecks;
 }
 
 /// <summary>
@@ -85,14 +110,28 @@ public class MonitoringHealthResponse
 /// </summary>
 public class MonitoringMetricsResponse
 {
-    [JsonPropertyName("memory_usage")]
-    public Dictionary<string, object> System { get; set; } = new();
-
-    [JsonPropertyName("application")]
-    public Dictionary<string, object> Application { get; set; } = new();
-
+    // Matches api.models.MonitoringMetricsResponse
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
+
+    [JsonPropertyName("memory_usage")]
+    public Dictionary<string, object> MemoryUsage { get; set; } = new();
+
+    [JsonPropertyName("operation_counts")]
+    public Dictionary<string, object> OperationCounts { get; set; } = new();
+
+    [JsonPropertyName("response_times")]
+    public Dictionary<string, object> ResponseTimes { get; set; } = new();
+
+    [JsonPropertyName("error_rates")]
+    public Dictionary<string, object> ErrorRates { get; set; } = new();
+
+    // Backwards-compatible aliases for older UI expectations
+    [JsonIgnore]
+    public Dictionary<string, object> System => MemoryUsage;
+
+    [JsonIgnore]
+    public Dictionary<string, object> Application => OperationCounts;
 }
 
 /// <summary>

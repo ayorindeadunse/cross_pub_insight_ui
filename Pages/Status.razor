@@ -1,5 +1,7 @@
 @page "/status"
 @inject CrossPubInsightUI.Services.CpiaApiService ApiService
+@using System.Text.Json
+@using System.Text.Json.Serialization
 
 <PageTitle>System Status - CPIA</PageTitle>
 
@@ -41,9 +43,21 @@
                                     </span>
                                 </div>
                                 <div class="status-item">
-                                    <span class="status-label">Message:</span>
-                                    <span>@healthData.Message</span>
+                                    <span class="status-label">Version:</span>
+                                    <span>@healthData.Version</span>
                                 </div>
+                                @if (healthData.Dependencies != null && healthData.Dependencies.Any())
+                                {
+                                    <div class="status-item">
+                                        <span class="status-label">Dependencies:</span>
+                                        <div class="ms-3">
+                                            @foreach (var dep in healthData.Dependencies)
+                                            {
+                                                <div class="small">@dep.Key: @dep.Value</div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                                 <div class="status-item">
                                     <span class="status-label">Last Check:</span>
                                     <span>@healthData.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</span>
@@ -87,21 +101,63 @@
                             {
                                 <div class="status-item">
                                     <span class="status-label">Overall Status:</span>
-                                    <span class="badge @GetStatusBadgeClass(detailedHealthData.OverallStatus)">
-                                        @detailedHealthData.OverallStatus.ToUpper()
+                                    <span class="badge @GetStatusBadgeClass(detailedHealthData.Status)">
+                                        @detailedHealthData.Status.ToUpper()
                                     </span>
+                                </div>
+                                
+                                <div class="status-item">
+                                    <span class="status-label">Uptime:</span>
+                                    <span>@FormatUptime(detailedHealthData.UptimeSeconds)</span>
                                 </div>
                                 
                                 <div class="mt-3">
                                     <h6>Component Checks:</h6>
-                                    @foreach (var check in detailedHealthData.Checks)
+                                    @if (detailedHealthData.HealthChecks != null && detailedHealthData.HealthChecks.Any())
                                     {
-                                        <div class="small-status-item">
-                                            <span class="component-name">@check.Key:</span>
-                                            <span class="component-status">@check.Value.ToString()</span>
-                                        </div>
+                                        @foreach (var check in detailedHealthData.HealthChecks)
+                                        {
+                                            var checkDetails = ParseHealthCheckDetails(check.Value);
+                                            <div class="health-check-item border rounded p-2 mb-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <strong>@check.Key</strong>
+                                                    <span class="badge @GetStatusBadgeClass(checkDetails.Status)">
+                                                        @checkDetails.Status.ToUpper()
+                                                    </span>
+                                                </div>
+                                                <div class="small text-muted mt-1">
+                                                    <div>Component: @checkDetails.Component</div>
+                                                    <div>Response Time: @checkDetails.ResponseTime ms</div>
+                                                    <div>Timestamp: @checkDetails.Timestamp</div>
+                                                    @if (!string.IsNullOrEmpty(checkDetails.Error))
+                                                    {
+                                                        <div class="text-danger">Error: @checkDetails.Error</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted">No health checks available</div>
                                     }
                                 </div>
+                                
+                                @if (detailedHealthData.SystemMetrics != null && detailedHealthData.SystemMetrics.Any())
+                                {
+                                    <div class="mt-3">
+                                        <h6>System Metrics:</h6>
+                                        <div class="system-metrics">
+                                            @foreach (var metric in detailedHealthData.SystemMetrics)
+                                            {
+                                                <div class="metric-item">
+                                                    <span class="metric-label">@metric.Key:</span>
+                                                    <span class="metric-value">@FormatMetricValue(metric.Value)</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
                                 
                                 <div class="mt-3">
                                     <button class="btn btn-outline-primary btn-sm" @onclick="RefreshDetailedHealth">
@@ -118,7 +174,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="mb-0">System Metrics</h5>
+                            <h5 class="mb-0">Application Metrics</h5>
                         </div>
                         <div class="card-body">
                             @if (metricsData == null)
@@ -133,25 +189,77 @@
                             {
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <h6>System Metrics</h6>
-                                        @foreach (var metric in metricsData.System)
+                                        <h6>Memory Usage</h6>
+                                        @if (metricsData.MemoryUsage != null && metricsData.MemoryUsage.Any())
                                         {
-                                            <div class="metric-item">
-                                                <span class="metric-label">@metric.Key:</span>
-                                                <span class="metric-value">@metric.Value.ToString()</span>
-                                            </div>
+                                            @foreach (var metric in metricsData.MemoryUsage)
+                                            {
+                                                <div class="metric-item">
+                                                    <span class="metric-label">@metric.Key:</span>
+                                                    <span class="metric-value">@FormatMetricValue(metric.Value)</span>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">No memory usage data available</div>
+                                        }
+                                        
+                                        <h6 class="mt-3">Response Times</h6>
+                                        @if (metricsData.ResponseTimes != null && metricsData.ResponseTimes.Any())
+                                        {
+                                            @foreach (var metric in metricsData.ResponseTimes)
+                                            {
+                                                <div class="metric-item">
+                                                    <span class="metric-label">@metric.Key:</span>
+                                                    <span class="metric-value">@FormatMetricValue(metric.Value) ms</span>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">No response time data available</div>
                                         }
                                     </div>
                                     <div class="col-md-6">
-                                        <h6>Application Metrics</h6>
-                                        @foreach (var metric in metricsData.Application)
+                                        <h6>Operation Counts</h6>
+                                        @if (metricsData.OperationCounts != null && metricsData.OperationCounts.Any())
                                         {
-                                            <div class="metric-item">
-                                                <span class="metric-label">@metric.Key:</span>
-                                                <span class="metric-value">@metric.Value.ToString()</span>
-                                            </div>
+                                            @foreach (var metric in metricsData.OperationCounts)
+                                            {
+                                                <div class="metric-item">
+                                                    <span class="metric-label">@metric.Key:</span>
+                                                    <span class="metric-value">@FormatMetricValue(metric.Value)</span>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">No operation count data available</div>
+                                        }
+                                        
+                                        <h6 class="mt-3">Error Rates</h6>
+                                        @if (metricsData.ErrorRates != null && metricsData.ErrorRates.Any())
+                                        {
+                                            @foreach (var metric in metricsData.ErrorRates)
+                                            {
+                                                <div class="metric-item">
+                                                    <span class="metric-label">@metric.Key:</span>
+                                                    <span class="metric-value @(IsHighErrorRate(metric.Value) ? "text-danger" : "")">
+                                                        @FormatMetricValue(metric.Value)%
+                                                    </span>
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">No error rate data available</div>
                                         }
                                     </div>
+                                </div>
+                                
+                                <div class="mt-3">
+                                    <small class="text-muted">Last Updated: @metricsData.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</small>
                                 </div>
                                 
                                 <div class="mt-3">
@@ -173,6 +281,15 @@
     private MonitoringHealthResponse? detailedHealthData;
     private MonitoringMetricsResponse? metricsData;
     private bool isLoading = false;
+
+    public class HealthCheckDetails
+    {
+        public string Status { get; set; } = "";
+        public string Component { get; set; } = "";
+        public string ResponseTime { get; set; } = "";
+        public string Timestamp { get; set; } = "";
+        public string Error { get; set; } = "";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -236,6 +353,91 @@
             _ => "bg-secondary"
         };
     }
+
+    private string FormatUptime(double uptimeSeconds)
+    {
+        var timespan = TimeSpan.FromSeconds(uptimeSeconds);
+        if (timespan.TotalDays >= 1)
+            return $"{timespan.Days}d {timespan.Hours}h {timespan.Minutes}m";
+        else if (timespan.TotalHours >= 1)
+            return $"{timespan.Hours}h {timespan.Minutes}m";
+        else
+            return $"{timespan.Minutes}m {timespan.Seconds}s";
+    }
+
+    private HealthCheckDetails ParseHealthCheckDetails(object checkValue)
+    {
+        try
+        {
+            if (checkValue is JsonElement jsonElement)
+            {
+                return new HealthCheckDetails
+                {
+                    Status = jsonElement.TryGetProperty("status", out var statusProp) ? statusProp.GetString() ?? "" : "",
+                    Component = jsonElement.TryGetProperty("component", out var compProp) ? compProp.GetString() ?? "" : "",
+                    ResponseTime = jsonElement.TryGetProperty("response_time_ms", out var timeProp) ? $"{timeProp.GetDouble():F2}" : "",
+                    Timestamp = jsonElement.TryGetProperty("timestamp", out var tsProp) ? tsProp.GetString() ?? "" : "",
+                    Error = jsonElement.TryGetProperty("error", out var errProp) && !errProp.ValueKind.Equals(JsonValueKind.Null) ? errProp.GetString() ?? "" : ""
+                };
+            }
+            
+            // Fallback: try to deserialize as JSON string
+            var jsonString = checkValue.ToString();
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                var parsed = JsonSerializer.Deserialize<JsonElement>(jsonString, options);
+                return ParseHealthCheckDetails(parsed);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error parsing health check details: {ex.Message}");
+        }
+
+        return new HealthCheckDetails { Status = "unknown", Component = "unknown" };
+    }
+
+    private string FormatMetricValue(object value)
+    {
+        if (value == null) return "N/A";
+        
+        if (value is JsonElement jsonElement)
+        {
+            return jsonElement.ValueKind switch
+            {
+                JsonValueKind.Number => jsonElement.TryGetDouble(out var d) ? $"{d:F2}" : jsonElement.ToString(),
+                JsonValueKind.String => jsonElement.GetString() ?? "N/A",
+                JsonValueKind.True => "true",
+                JsonValueKind.False => "false",
+                _ => jsonElement.ToString()
+            };
+        }
+        
+        if (value is double d2)
+            return $"{d2:F2}";
+        if (value is float f)
+            return $"{f:F2}";
+        if (value is int i)
+            return i.ToString("N0");
+        if (value is long l)
+            return l.ToString("N0");
+            
+        return value.ToString() ?? "N/A";
+    }
+
+    private bool IsHighErrorRate(object value)
+    {
+        if (value is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Number)
+        {
+            return jsonElement.GetDouble() > 5.0; // > 5% error rate is high
+        }
+        if (double.TryParse(value?.ToString(), out var rate))
+        {
+            return rate > 5.0;
+        }
+        return false;
+    }
 }
 
 <style>
@@ -248,14 +450,8 @@
         margin-right: 0.5rem;
     }
     
-    .small-status-item {
-        margin-bottom: 0.25rem;
-        font-size: 0.875rem;
-    }
-    
-    .component-name {
-        font-weight: 500;
-        margin-right: 0.5rem;
+    .health-check-item {
+        background-color: #f8f9fa;
     }
     
     .metric-item {
@@ -273,5 +469,10 @@
         background-color: #f8f9fa;
         padding: 0.125rem 0.25rem;
         border-radius: 0.25rem;
+    }
+    
+    .system-metrics {
+        max-height: 200px;
+        overflow-y: auto;
     }
 </style>

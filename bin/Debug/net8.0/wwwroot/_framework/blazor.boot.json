@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "CrossPubInsightUI",
   "resources": {
-    "hash": "sha256-2DNv79ahgacbtK07uWOvDC7yxrcr5wAQmiJVUIKadeo=",
+    "hash": "sha256-5umIdlAMDe429TsZTSAYPXLsqP/HU+5zBGDOpaQMtp8=",
     "jsModuleNative": {
       "dotnet.native.8.0.6.5f07ypo3r5.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
     },
@@ -212,10 +212,10 @@
       "mscorlib.wasm": "sha256-masKveCdoRSahF99doEQk7H3YN2wHLVIE4M/Zu8OoD8=",
       "netstandard.wasm": "sha256-z1EJOmgVhSpTopn7Tek/0P//MKGF1I3NUD/sh4oLnwY=",
       "System.Private.CoreLib.wasm": "sha256-tuIWpR30u0OoEVtv4pXZ47mEpI2AmFBIyYFPnqDZZfw=",
-      "CrossPubInsightUI.wasm": "sha256-Z85ihXrrAEHioNNOmhwdIkahyaS9VqUwc/trhag10Ns="
+      "CrossPubInsightUI.wasm": "sha256-d+oI2kEuyAmaPPJcUoxWXlzJBXjIr7aEVAIhR4oMfpc="
     },
     "pdb": {
-      "CrossPubInsightUI.pdb": "sha256-CzbrjtOrI5NYOzvm8ttdWo+b8RSIrTTbB3v1yTfSnwQ="
+      "CrossPubInsightUI.pdb": "sha256-TX58hb+pbtcVTaRyFIDW6u+qYauw3ZSg6H9zt6MCsOs="
     }
   },
   "cacheBootResources": true,
