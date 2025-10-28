@@ -70,10 +70,10 @@ public class HealthResponse
 /// </summary>
 public class MonitoringHealthResponse
 {
-    [JsonPropertyName("overall_status")]
+    [JsonPropertyName("status")]
     public string OverallStatus { get; set; } = string.Empty;
 
-    [JsonPropertyName("checks")]
+    [JsonPropertyName("health_checks")]
     public Dictionary<string, object> Checks { get; set; } = new();
 
     [JsonPropertyName("timestamp")]

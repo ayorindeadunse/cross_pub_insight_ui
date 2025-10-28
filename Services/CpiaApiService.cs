@@ -17,7 +17,7 @@ public class CpiaApiService
         _httpClient = httpClient;
         _jsonOptions = new JsonSerializerOptions
         {
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             WriteIndented = true
         };
     }
