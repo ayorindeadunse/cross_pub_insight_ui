@@ -85,7 +85,7 @@ public class MonitoringHealthResponse
 /// </summary>
 public class MonitoringMetricsResponse
 {
-    [JsonPropertyName("system")]
+    [JsonPropertyName("memory_usage")]
     public Dictionary<string, object> System { get; set; } = new();
 
     [JsonPropertyName("application")]
