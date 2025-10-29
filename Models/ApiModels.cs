@@ -157,3 +157,24 @@ public class AnalysisState
     public DateTime? EndTime { get; set; }
     public object? Results { get; set; }
 }
+
+/// <summary>
+/// Individual analysis result item for improved formatting
+/// </summary>
+public class AnalysisResultItem
+{
+    [JsonPropertyName("comparison_repo")]
+    public string ComparisonRepo { get; set; } = "";
+
+    [JsonPropertyName("analysis_result")]
+    public string AnalysisResult { get; set; } = "";
+
+    [JsonPropertyName("fact_check_result")]
+    public string FactCheckResult { get; set; } = "";
+
+    [JsonPropertyName("aggregate_query_result")]
+    public string AggregateQueryResult { get; set; } = "";
+
+    [JsonPropertyName("final_summary")]
+    public string FinalSummary { get; set; } = "";
+}

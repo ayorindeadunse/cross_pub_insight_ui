@@ -1,6 +1,7 @@
 @page "/analysis"
 @inject CrossPubInsightUI.Services.CpiaApiService ApiService
 @inject IJSRuntime JSRuntime
+@using CrossPubInsightUI.Pages
 
 <PageTitle>Repository Analysis - CPIA</PageTitle>
 
@@ -105,7 +106,9 @@
                         
                         <div class="alert alert-info">
                             <h6>📊 Analysis Results</h6>
-                            <pre class="bg-light p-3 rounded">@FormatResults(analysisState.Results)</pre>
+                            <div class="analysis-results">
+                                <pre class="bg-light p-3 rounded">@FormatResults(analysisState.Results)</pre>
+                            </div>
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -293,8 +296,7 @@
     
     private string FormatResults(object? results)
     {
-        if (results == null) return "No results available";
-        return System.Text.Json.JsonSerializer.Serialize(results, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        return AnalysisFormatter.FormatResults(results);
     }
     
     private async Task DownloadResults()

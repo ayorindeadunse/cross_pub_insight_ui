@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "eSxXrPj/JIlUhaGr7GPbT5PNDr9DM4sCfJ/kUSE7ckE=",
+  "Hash": "/Tih9xgPEAY81L0iAy+uU8sZ94NRoGeyCvbgNaON4cU=",
   "Source": "CrossPubInsightUI",
   "BasePath": "/",
   "Mode": "Root",
@@ -7957,6 +7957,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/obj/Debug/net8.0/scopedcss/projectbundle/CrossPubInsightUI.bundle.scp.css"
+    },
+    {
+      "Identity": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/css/analysis-formatting.css",
+      "SourceId": "CrossPubInsightUI",
+      "SourceType": "Discovered",
+      "ContentRoot": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/",
+      "BasePath": "/",
+      "RelativePath": "css/analysis-formatting.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/css/analysis-formatting.css"
     },
     {
       "Identity": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/css/app.css",
