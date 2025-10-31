@@ -13,6 +13,14 @@
       "PackagePath": "staticwebassets/CrossPubInsightUI.styles.css"
     },
     {
+      "Id": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/appsettings.Development.json",
+      "PackagePath": "staticwebassets/appsettings.Development.json"
+    },
+    {
+      "Id": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/appsettings.json",
+      "PackagePath": "staticwebassets/appsettings.json"
+    },
+    {
       "Id": "/Users/ayorindeadunse/Projects/CrossPubInsightUI/wwwroot/css/analysis-formatting.css",
       "PackagePath": "staticwebassets/css/analysis-formatting.css"
     },
