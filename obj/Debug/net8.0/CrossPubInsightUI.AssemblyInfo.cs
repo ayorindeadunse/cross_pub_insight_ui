@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CrossPubInsightUI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7ef37e0da2a3d286f78bfb6ff01f185cc90670f6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2c9a805003e5b5ac970605751e8f06377ce4997a")]
 [assembly: System.Reflection.AssemblyProductAttribute("CrossPubInsightUI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CrossPubInsightUI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
